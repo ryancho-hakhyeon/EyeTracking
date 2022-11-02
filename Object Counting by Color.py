@@ -34,19 +34,46 @@ def search_contours(mask):
             cv2.drawContours(frame, [contour], -1, (0, 255, 0), 2)
             contours_count += 1
 
+            M = cv2.moments(contour)
+            if M["m00"] != 0:
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
+            else:
+                cX, cY = 0, 0
+            cv2.circle(frame, (cX, cY), 3, (255, 255, 255), -1)
+            cv2.putText(frame, f"{contours_count}", (cX - 25, cY, - 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
+                        (255, 255, 255), 2)
+
     return contours_count
+
+
+def nothing():
+    pass
 
 
 cv2.namedWindow('image')
 cv2.setMouseCallback('image', select_color)
+
+cv2.namedWindow("Trackbars")
+cv2.resizeWindow("Trackbars", 400, 80)
+
+cv2.createTrackbar('Lower-Hue', 'Trackbars', 14, 179, nothing)
+cv2.createTrackbar('Upper-Hue', 'Trackbars', 20, 179, nothing)
+
 
 while True:
     _, frame = cap.read()
 
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    lower_hsv = np.array([hue - 10, 50, 20])
-    upper_hsv = np.array([hue + 10, 255, 255])
+    diff_lower_hue = cv2.getTrackbarPos('Lower-Hue', 'Trackbars')
+    diff_upper_hue = cv2.getTrackbarPos('Upper-Hue', 'Trackbars')
+
+    lower_hue = 0 if hue - diff_lower_hue < 0 else hue - diff_lower_hue
+    upper_hue = hue + diff_upper_hue if hue + diff_upper_hue < 179 else 179
+
+    lower_hsv = np.array([lower_hue - 10, 50, 20])
+    upper_hsv = np.array([upper_hue + 10, 255, 255])
 
     mask = cv2.inRange(hsv, lower_hsv, upper_hsv)
 
