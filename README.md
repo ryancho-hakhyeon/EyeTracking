@@ -9,5 +9,5 @@
 
 ## Development Notes
 
-<li>Developed First Demo version</li>
+<li style="font-weight: bold">Developed First Demo version</li>
 <p>The first demo version is about simply tracking eye moving on the screen.</p>
